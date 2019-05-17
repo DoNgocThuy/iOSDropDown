@@ -19,16 +19,21 @@ open class DropDown : UITextField{
     
     //MARK: IBInspectable
     
-   @IBInspectable public var rowHeight: CGFloat = 30
-   @IBInspectable public var rowBackgroundColor: UIColor = .white
-   @IBInspectable public var selectedRowColor: UIColor = .cyan
-   @IBInspectable public var hideOptionsWhenSelect = true
-   @IBInspectable  public var isSearchEnable: Bool = true {
+    @IBInspectable public var rowHeight: CGFloat = 30
+    @IBInspectable public var rowBackgroundColor: UIColor = .white
+    @IBInspectable public var selectedRowColor: UIColor = .cyan
+    @IBInspectable public var hideOptionsWhenSelect = true
+    @IBInspectable  public var isSearchEnable: Bool = true {
         didSet{
             addGesture()
         }
     }
     
+    @IBInspectable public var arrowColor: UIColor =  UIColor.black {
+        didSet {
+            arrow.arrowColor = arrowColor
+        }
+    }
     
     @IBInspectable public var borderColor: UIColor =  UIColor.lightGray {
         didSet {
@@ -52,18 +57,14 @@ open class DropDown : UITextField{
         }
     }
     
+    
+    
     //Variables
     fileprivate  var tableheightX: CGFloat = 100
     fileprivate  var dataArray = [String]()
-    fileprivate  var imageArray = [String]()
     public var optionArray = [String]() {
         didSet{
             self.dataArray = self.optionArray
-        }
-    }
-    public var optionImageArray = [String]() {
-        didSet{
-            self.imageArray = self.optionImageArray
         }
     }
     public var optionIds : [Int]?
@@ -85,9 +86,10 @@ open class DropDown : UITextField{
         didSet{
             let center =  arrow.superview!.center
             arrow.frame = CGRect(x: center.x - arrowSize/2, y: center.y - arrowSize/2, width: arrowSize, height: arrowSize)
+            
         }
     }
-  
+    
     // Init
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -110,7 +112,7 @@ open class DropDown : UITextField{
     fileprivate var TableDidDisappearCompletion: () -> () = { }
     
     func setupUI () {
-       let size = self.frame.height
+        let size = self.frame.height
         let rightView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: size, height: size))
         self.rightView = rightView
         self.rightViewMode = .always
@@ -118,6 +120,7 @@ open class DropDown : UITextField{
         self.rightView?.addSubview(arrowContainerView)
         let center = arrowContainerView.center
         arrow = Arrow(origin: CGPoint(x: center.x - arrowSize/2,y: center.y - arrowSize/2),size: arrowSize)
+        //        arrow.backgroundColor = self.arrowColor
         arrowContainerView.addSubview(arrow)
         addGesture()
     }
@@ -316,9 +319,6 @@ extension DropDown: UITableViewDataSource {
             cell?.backgroundColor = selectedRowColor
         }
         
-        if self.imageArray.count > indexPath.row {
-            cell!.imageView!.image = UIImage(named: imageArray[indexPath.row])
-        }
         cell!.textLabel!.text = "\(dataArray[indexPath.row])"
         cell!.accessoryType = indexPath.row == selectedIndex ? .checkmark : .none
         cell!.selectionStyle = .none
@@ -360,10 +360,6 @@ extension DropDown: UITableViewDelegate {
 }
 
 
-
-
-
-
 //MARK: Arrow
 enum Position {
     case left
@@ -373,7 +369,7 @@ enum Position {
 }
 
 class Arrow: UIView {
-    
+    public var arrowColor: UIColor = UIColor.black
     var position: Position = .down {
         didSet{
             switch position {
@@ -424,10 +420,11 @@ class Arrow: UIView {
         // Mask to path
         let shapeLayer = CAShapeLayer()
         shapeLayer.path = bezierPath.cgPath
+        shapeLayer.fillColor = self.arrowColor.cgColor
         if #available(iOS 12.0, *) {
-        self.layer.addSublayer (shapeLayer)
+            self.layer.addSublayer (shapeLayer)
         } else {
-         self.layer.mask = shapeLayer
+            self.layer.mask = shapeLayer
         }
     }
 }
